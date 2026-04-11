@@ -121,7 +121,11 @@ class _ListPageState extends State<ListPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: style,
+              style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey,
+                      foregroundColor: Colors.black,
+                      elevation: 8,
+                    ),
               onPressed: () async {
                 final response = await http.put(
                   Uri.parse('http://192.168.1.6:8080/etudiants/${etudiant.id}'),
