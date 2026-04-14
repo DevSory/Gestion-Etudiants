@@ -9,6 +9,9 @@ class ListPage extends StatefulWidget {
   State<ListPage> createState() => _ListPageState();
 }
 
+String requette = "";
+final TextEditingController _controller = TextEditingController();
+
 class _ListPageState extends State<ListPage> {
   void confirmerSuppression(BuildContext context, int id, String nomComplet) {
     showDialog(
@@ -54,7 +57,7 @@ class _ListPageState extends State<ListPage> {
 
   Future<List<Etudiant>> fetchEtudiants() async {
     final response = await http.get(
-      Uri.parse('http://192.168.1.6:8080/etudiants'),
+      Uri.parse('http://192.168.137.1:8080/etudiants'),
     );
 
     if (response.statusCode == 200) {
@@ -68,7 +71,7 @@ class _ListPageState extends State<ListPage> {
 
   Future<void> supprimer(int id) async {
     final response = await http.delete(
-      Uri.parse('http://192.168.1.6:8080/etudiants/$id'),
+      Uri.parse('http://192.168.137.1:8080/etudiants/$id'),
     );
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,13 +125,13 @@ class _ListPageState extends State<ListPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey,
-                      foregroundColor: Colors.black,
-                      elevation: 8,
-                    ),
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.black,
+                elevation: 8,
+              ),
               onPressed: () async {
                 final response = await http.put(
-                  Uri.parse('http://192.168.1.6:8080/etudiants/${etudiant.id}'),
+                  Uri.parse('http://192.168.137.1:8080/etudiants/${etudiant.id}'),
                   headers: {"Content-Type": "application/json"},
                   body: jsonEncode({
                     "nom": nomCtrl.text,
@@ -165,41 +168,75 @@ class _ListPageState extends State<ListPage> {
         title: Text("Liste des étudiants"),
         centerTitle: true,
       ),
-      body: FutureBuilder<List<Etudiant>>(
-        future: fetchEtudiants(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Erreur : ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Aucun étudiant trouvé"));
-          }
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final student = snapshot.data![index];
-
-              return Card(
-                margin: const EdgeInsets.all(5),
-                child: ListTile(
-                  onTap: () => modifier(student),
-                  leading: const Icon(Icons.person, color: Colors.black),
-                  title: Text("${student.prenom} ${student.nom}"),
-                  subtitle: Text(student.email),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => confirmerSuppression(
-                      context,
-                      student.id!,
-                      "${student.prenom} ${student.nom}",
-                    ),
-                  ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(15),
+            child: TextField(
+              onChanged: (value) => {
+                setState(() {
+                  requette = value;
+                }),
+              },
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: "rechercher un étudiant",
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      requette = "";
+                      _controller.clear();
+                    });
+                  },
+                  icon: Icon(Icons.delete, color: Colors.red),
                 ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Etudiant>>(
+            future: fetchEtudiants(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Erreur : ${snapshot.error}"));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("Aucun étudiant trouvé"));
+              }
+              List<Etudiant> complet = snapshot.data!;
+              List<Etudiant> filtree = complet.where((e) {
+                return ((e.nom.toLowerCase().contains(requette.toLowerCase()))|| (e.prenom.toLowerCase().contains(requette.toLowerCase())));
+              }).toList();
+              return ListView.builder(
+                itemCount: filtree.length,
+                itemBuilder: (context, index) {
+                  final student = filtree[index];
+
+                  return Card(
+                    margin: const EdgeInsets.all(5),
+                    child: ListTile(
+                      onTap: () => modifier(student),
+                      leading: const Icon(Icons.person, color: Colors.black),
+                      title: Text("${student.prenom} ${student.nom}"),
+                      subtitle: Text(student.email),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => confirmerSuppression(
+                          context,
+                          student.id!,
+                          "${student.prenom} ${student.nom}",
+                        ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+          ),
+        ],
       ),
     );
   }
