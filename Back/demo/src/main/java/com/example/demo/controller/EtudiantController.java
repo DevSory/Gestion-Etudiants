@@ -25,7 +25,7 @@ public class EtudiantController {
     private EtudiantRepo etudiantRepo;
     @PostMapping
     public Etudiant ajouterEtudiant(@RequestBody Etudiant etudiant) {
-        //TODO: process POST request
+       
         
         return etudiantRepo.save(etudiant);
     }

@@ -57,7 +57,7 @@ class _ListPageState extends State<ListPage> {
 
   Future<List<Etudiant>> fetchEtudiants() async {
     final response = await http.get(
-      Uri.parse('http://192.168.137.1:8080/etudiants'),
+      Uri.parse('http://10.214.224.201:8080/etudiants'),
     );
 
     if (response.statusCode == 200) {
@@ -71,7 +71,7 @@ class _ListPageState extends State<ListPage> {
 
   Future<void> supprimer(int id) async {
     final response = await http.delete(
-      Uri.parse('http://192.168.137.1:8080/etudiants/$id'),
+      Uri.parse('http://10.214.224.201:8080/etudiants/$id'),
     );
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -125,13 +125,13 @@ class _ListPageState extends State<ListPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey,
+                backgroundColor: Colors.blueGrey[100],
                 foregroundColor: Colors.black,
                 elevation: 8,
               ),
               onPressed: () async {
                 final response = await http.put(
-                  Uri.parse('http://192.168.137.1:8080/etudiants/${etudiant.id}'),
+                  Uri.parse('http://10.214.224.201:8080/etudiants/${etudiant.id}'),
                   headers: {"Content-Type": "application/json"},
                   body: jsonEncode({
                     "nom": nomCtrl.text,
@@ -180,6 +180,10 @@ class _ListPageState extends State<ListPage> {
               },
               controller: _controller,
               decoration: InputDecoration(
+                border: UnderlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey)
+                ),
                 hintText: "rechercher un étudiant",
                 prefixIcon: Icon(Icons.search),
                 suffixIcon: IconButton(
@@ -189,7 +193,7 @@ class _ListPageState extends State<ListPage> {
                       _controller.clear();
                     });
                   },
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: Icon(Icons.delete, color: Colors.grey),
                 ),
               ),
             ),

@@ -21,7 +21,7 @@ Future<void> envoyerEtudiant() async {
 
   try {
 
-    final url = Uri.parse('http://192.168.137.1:8080/etudiants');
+    final url = Uri.parse('http://10.214.224.201:8080/etudiants');
 
     final body = jsonEncode({
       "nom": nom,

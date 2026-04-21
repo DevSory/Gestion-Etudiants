@@ -96,3 +96,4 @@ flutter_launcher_icons:
   min_sdk_android: 21 # Ton projet utilise déjà une version supérieure
   adaptive_icon_background: "#FFFFFF" # Couleur de fond (ex: Blanc)
   adaptive_icon_foreground: "assets/images/logo.jpg"
+
